@@ -1,0 +1,15 @@
+@import "tailwindcss";
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    color: #111827;        /* text-gray-900 */
+    background-color: #ffffff;  /* bg-white */
+  }
+}
+
+.font-serif {
+  font-family: var(--font-serif), 'Georgia', serif;
+}
