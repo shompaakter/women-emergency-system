@@ -1,33 +1,35 @@
+// backend/server.js
+// তোমার existing server.js-এ এই routes যোগ করো
+
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
-const dotenv = require('dotenv');
-
-dotenv.config();
+require('dotenv').config();
 
 const app = express();
 
-// middleware
-app.use(cors());
+app.use(cors({ origin: process.env.FRONTEND_URL || 'http://localhost:3000', credentials: true }));
 app.use(express.json());
 
-// routes
-app.use('/api/auth', require('./routes/auth'));
-app.use('/api/contacts', require('./routes/contacts'));
-app.use('/api/sos', require('./routes/sos'));
+// ── Routes ────────────────────────────────────────────
+const authRoutes   = require('./routes/auth');
+const sosRoutes    = require('./routes/sos');
+const contactRoutes = require('./routes/contacts');
+const reportRoutes = require('./routes/report');   // ← নতুন
+const mapRoutes    = require('./routes/map');       // ← নতুন
 
-// test route
-app.get('/', (req, res) => {
-  res.send('SafeHer API running');
-});
+app.use('/api/auth',     authRoutes);
+app.use('/api/sos',      sosRoutes);
+app.use('/api/contacts', contactRoutes);
+app.use('/api/report',   reportRoutes);  // ← নতুন
+app.use('/api/map',      mapRoutes);     // ← নতুন
 
-// MongoDB connect
-mongoose.connect(process.env.MONGODB_URI, {
-  serverSelectionTimeoutMS: 30000,
-  family: 4,
-})
-  .then(() => console.log('MongoDB Connected'))
-  .catch(err => console.log('MongoDB Error:', err.message));
-
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+// ── MongoDB connect ───────────────────────────────────
+mongoose.connect(process.env.MONGODB_URI)
+  .then(() => {
+    console.log('✅ MongoDB connected');
+    app.listen(process.env.PORT || 5000, () => {
+      console.log(`✅ Server running on port ${process.env.PORT || 5000}`);
+    });
+  })
+  .catch(err => console.error('❌ MongoDB error:', err));
