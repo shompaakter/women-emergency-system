@@ -19,10 +19,10 @@ app.use('/api/sos',      require('./routes/sos'));
 app.use('/api/contacts', require('./routes/contacts'));
 app.use('/api/report',   require('./routes/report'));
 app.use('/api/map',      require('./routes/map'));
+app.use('/api/admin',    require('./routes/admin'));   // ← নতুন
 
 app.get('/', (req, res) => res.json({ status: 'SafeHer API running ✅' }));
 
-// ── Connect + Start ──────────────────────────────────
 mongoose.connect(process.env.MONGODB_URI)
   .then(() => {
     console.log('✅ MongoDB connected');
