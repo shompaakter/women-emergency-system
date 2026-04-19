@@ -14,8 +14,7 @@ const INCIDENT_TYPES = [
   { value: 'cyber',      label: 'Cyber Bullying / Threat', labelEn: 'Online harassment or threats' },
   { value: 'other',      label: 'Other',                   labelEn: 'Any other form of abuse' },
 ];
-
-const RELATION_TYPES = ['Stranger', 'Acquaintance', 'Colleague / Classmate', 'Boss / Teacher', 'Family Member', 'Friend / Ex-partner', 'Other'];
+const RELATION_TYPES = ['Stranger','Acquaintance','Colleague / Classmate','Boss / Teacher','Family Member','Friend / Ex-partner','Other'];
 
 export default function ReportPage() {
   const [step,        setStep]        = useState(1);
@@ -37,8 +36,7 @@ export default function ReportPage() {
 
   const update = (field, value) => setForm(prev => ({ ...prev, [field]: value }));
 
-  // ── Get user GPS location ───────────────────────────
-  const getLocation = () => new Promise((resolve) => {
+  const getLocation = () => new Promise(resolve => {
     if (!navigator.geolocation) return resolve({});
     navigator.geolocation.getCurrentPosition(
       pos => resolve({ latitude: pos.coords.latitude, longitude: pos.coords.longitude }),
@@ -46,24 +44,16 @@ export default function ReportPage() {
     );
   });
 
-  // ── Submit to backend ───────────────────────────────
   const handleSubmit = async () => {
-    setLoading(true);
-    setSubmitError('');
+    setLoading(true); setSubmitError('');
     try {
       const coords = await getLocation();
-      const res = await axios.post(`${API_URL}/api/report`, {
-        ...form,
-        isAnonymous,
-        ...coords,
-      });
+      const res = await axios.post(`${API_URL}/api/report`, { ...form, isAnonymous, ...coords });
       setReportCode(res.data.reportCode);
       setSubmitted(true);
     } catch (err) {
       setSubmitError(err.response?.data?.message || 'Failed to submit. Please try again.');
-    } finally {
-      setLoading(false);
-    }
+    } finally { setLoading(false); }
   };
 
   const copyCode = () => {
@@ -74,46 +64,44 @@ export default function ReportPage() {
 
   const resetForm = () => {
     setSubmitted(false); setStep(1); setIsAnonymous(true); setSubmitError('');
-    setForm({ incidentType:'', otherType:'', incidentDate:'', incidentTime:'', location:'', description:'',
-      accusedName:'', accusedRelation:'', accusedDescription:'', hasEvidence:false, evidenceNote:'',
-      contactName:'', contactPhone:'', contactEmail:'', wantsFollowUp:false, consentPolice:false });
+    setForm({ incidentType:'',otherType:'',incidentDate:'',incidentTime:'',location:'',description:'',
+      accusedName:'',accusedRelation:'',accusedDescription:'',hasEvidence:false,evidenceNote:'',
+      contactName:'',contactPhone:'',contactEmail:'',wantsFollowUp:false,consentPolice:false });
   };
 
+  // ── Validation ───────────────────────────────────────
   const canNext1 = form.incidentType !== '';
-  const canNext2 = form.location.trim() !== '' && form.description.trim().length >= 20;
+  // Step 2: only description is required (min 20 chars), location is optional
+  const canNext2 = form.description.trim().length >= 20;
 
-  // ── Success Screen ──────────────────────────────────
+  // ── Success Screen ───────────────────────────────────
   if (submitted) {
     return (
       <div className="min-h-screen bg-linear-to-br from-pink-50 via-white to-rose-50 flex items-center justify-center px-4 py-16">
         <div className="max-w-md w-full text-center">
           <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
             <svg className="w-10 h-10 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7"/>
             </svg>
           </div>
           <h1 className="font-serif text-3xl font-bold text-indigo-900 mb-3">Report Submitted</h1>
           <p className="text-gray-500 text-sm leading-relaxed mb-8">Thank you for your courage. Our team will review your report as soon as possible.</p>
-
           <div className="bg-white border-2 border-dashed border-pink-300 rounded-2xl p-6 mb-8">
             <p className="text-xs text-gray-400 uppercase tracking-widest mb-2">Your Report Code</p>
             <p className="font-mono text-3xl font-bold text-pink-500 tracking-wider mb-3">{reportCode}</p>
-            <p className="text-xs text-gray-400 mb-4">Save this code — use it to track your report status later.</p>
-            <button onClick={copyCode}
-              className="text-sm bg-pink-50 hover:bg-pink-100 text-pink-600 px-5 py-2 rounded-full transition-colors">
+            <p className="text-xs text-gray-400 mb-4">Save this code to track your report status later.</p>
+            <button onClick={copyCode} className="text-sm bg-pink-50 hover:bg-pink-100 text-pink-600 px-5 py-2 rounded-full transition-colors">
               {copied ? '✓ Copied!' : 'Copy Code'}
             </button>
           </div>
-
           <div className="bg-indigo-50 rounded-xl p-4 mb-8 text-left">
             <p className="text-xs font-semibold text-indigo-700 mb-2">What happens next?</p>
             <ul className="text-xs text-indigo-600 space-y-1">
-              <li>• Our team reviews your report within 24 hours</li>
+              <li>• Our team reviews within 24 hours</li>
               <li>• If you provided contact details, we will reach out directly</li>
-              <li>• Keep your report code safe to track status</li>
+              <li>• Keep your report code to track status</li>
             </ul>
           </div>
-
           <div className="flex gap-3 justify-center">
             <Link href="/" className="text-sm border border-pink-300 text-pink-500 hover:bg-pink-50 px-5 py-2.5 rounded-full transition-colors">Back to Home</Link>
             <button onClick={resetForm} className="text-sm bg-pink-500 hover:bg-pink-600 text-white px-5 py-2.5 rounded-full transition-colors">Submit Another</button>
@@ -141,13 +129,13 @@ export default function ReportPage() {
         <div className="flex items-center gap-2 mb-8">
           {[1,2,3].map(s => (
             <div key={s} className="flex items-center gap-2 flex-1">
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold transition-all duration-300 ${
-                step > s ? 'bg-green-500 text-white' : step === s ? 'bg-pink-500 text-white shadow-md shadow-pink-200' : 'bg-gray-100 text-gray-400'
-              }`}>{step > s ? '✓' : s}</div>
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold transition-all duration-300 ${step > s ? 'bg-green-500 text-white' : step === s ? 'bg-pink-500 text-white shadow-md shadow-pink-200' : 'bg-gray-100 text-gray-400'}`}>
+                {step > s ? '✓' : s}
+              </div>
               <span className={`text-xs hidden sm:block ${step === s ? 'text-pink-600 font-medium' : 'text-gray-400'}`}>
                 {s === 1 ? 'Incident Info' : s === 2 ? 'Details' : 'Contact'}
               </span>
-              {s < 3 && <div className={`flex-1 h-0.5 rounded transition-all duration-500 ${step > s ? 'bg-green-400' : 'bg-gray-200'}`} />}
+              {s < 3 && <div className={`flex-1 h-0.5 rounded transition-all duration-500 ${step > s ? 'bg-green-400' : 'bg-gray-200'}`}/>}
             </div>
           ))}
         </div>
@@ -162,9 +150,7 @@ export default function ReportPage() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {INCIDENT_TYPES.map(type => (
                     <button key={type.value} onClick={() => update('incidentType', type.value)}
-                      className={`text-left p-4 rounded-xl border-2 transition-all duration-200 ${
-                        form.incidentType === type.value ? 'border-pink-400 bg-pink-50' : 'border-gray-100 hover:border-pink-200 hover:bg-pink-50/50'
-                      }`}>
+                      className={`text-left p-4 rounded-xl border-2 transition-all duration-200 ${form.incidentType === type.value ? 'border-pink-400 bg-pink-50' : 'border-gray-100 hover:border-pink-200 hover:bg-pink-50/50'}`}>
                       <p className={`text-sm font-medium ${form.incidentType === type.value ? 'text-pink-700' : 'text-gray-700'}`}>{type.label}</p>
                       <p className="text-xs text-gray-400 mt-0.5">{type.labelEn}</p>
                     </button>
@@ -174,19 +160,19 @@ export default function ReportPage() {
               {form.incidentType === 'other' && (
                 <input type="text" value={form.otherType} onChange={e => update('otherType', e.target.value)}
                   placeholder="Describe the type..."
-                  className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-pink-400 focus:ring-2 focus:ring-pink-100" />
+                  className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-pink-400 focus:ring-2 focus:ring-pink-100"/>
               )}
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-semibold text-gray-500 mb-1.5">Date of Incident</label>
                   <input type="date" value={form.incidentDate} onChange={e => update('incidentDate', e.target.value)}
                     max={new Date().toISOString().split('T')[0]}
-                    className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-pink-400 focus:ring-2 focus:ring-pink-100" />
+                    className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-pink-400 focus:ring-2 focus:ring-pink-100"/>
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-gray-500 mb-1.5">Approximate Time</label>
                   <input type="time" value={form.incidentTime} onChange={e => update('incidentTime', e.target.value)}
-                    className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-pink-400 focus:ring-2 focus:ring-pink-100" />
+                    className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-pink-400 focus:ring-2 focus:ring-pink-100"/>
                 </div>
               </div>
             </div>
@@ -196,27 +182,29 @@ export default function ReportPage() {
           {step === 2 && (
             <div className="space-y-6">
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Where did it happen? <span className="text-pink-500">*</span></label>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Where did it happen? <span className="text-gray-400 font-normal text-xs">(optional)</span></label>
                 <input type="text" value={form.location} onChange={e => update('location', e.target.value)}
                   placeholder="e.g. University campus, city name..."
-                  className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-pink-400 focus:ring-2 focus:ring-pink-100" />
+                  className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-pink-400 focus:ring-2 focus:ring-pink-100"/>
               </div>
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
                   What happened? <span className="text-pink-500">*</span>
-                  <span className="font-normal text-gray-400 ml-2">({form.description.length} / min. 20)</span>
+                  <span className="font-normal text-gray-400 ml-2 text-xs">({form.description.length} / min. 20 chars)</span>
                 </label>
                 <textarea value={form.description} onChange={e => update('description', e.target.value)} rows={5}
-                  placeholder="Write in your own words — share only what you are comfortable with."
-                  className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-pink-400 focus:ring-2 focus:ring-pink-100 resize-none" />
+                  placeholder="Write in your own words — share only what you are comfortable with. There is no pressure."
+                  className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-pink-400 focus:ring-2 focus:ring-pink-100 resize-none"/>
+                {form.description.length > 0 && form.description.trim().length < 20 && (
+                  <p className="text-xs text-amber-600 mt-1">Please write at least 20 characters ({20 - form.description.trim().length} more needed)</p>
+                )}
               </div>
-              <div className="border-t border-gray-100 pt-6">
-                <p className="text-sm font-semibold text-gray-700 mb-1">Information about the accused</p>
-                <p className="text-xs text-gray-400 mb-4">Completely optional — skip if you prefer.</p>
-                <div className="space-y-3">
+              <div className="border-t border-gray-100 pt-5">
+                <p className="text-sm font-semibold text-gray-700 mb-1">Accused information <span className="text-gray-400 font-normal text-xs">(optional)</span></p>
+                <div className="space-y-3 mt-3">
                   <input type="text" value={form.accusedName} onChange={e => update('accusedName', e.target.value)}
                     placeholder="Name (if known)"
-                    className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-pink-400 focus:ring-2 focus:ring-pink-100" />
+                    className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-pink-400 focus:ring-2 focus:ring-pink-100"/>
                   <select value={form.accusedRelation} onChange={e => update('accusedRelation', e.target.value)}
                     className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-pink-400 bg-white text-gray-500">
                     <option value="">Relation to you?</option>
@@ -224,12 +212,12 @@ export default function ReportPage() {
                   </select>
                   <textarea value={form.accusedDescription} onChange={e => update('accusedDescription', e.target.value)} rows={2}
                     placeholder="Physical description or other details (optional)"
-                    className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-pink-400 focus:ring-2 focus:ring-pink-100 resize-none" />
+                    className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-pink-400 focus:ring-2 focus:ring-pink-100 resize-none"/>
                 </div>
               </div>
               <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
                 <label className="flex items-start gap-3 cursor-pointer">
-                  <input type="checkbox" checked={form.hasEvidence} onChange={e => update('hasEvidence', e.target.checked)} className="mt-0.5 accent-pink-500" />
+                  <input type="checkbox" checked={form.hasEvidence} onChange={e => update('hasEvidence', e.target.checked)} className="mt-0.5 accent-pink-500"/>
                   <div>
                     <p className="text-sm font-medium text-amber-800">I have evidence</p>
                     <p className="text-xs text-amber-600 mt-0.5">Photos, screenshots, messages, videos</p>
@@ -238,7 +226,7 @@ export default function ReportPage() {
                 {form.hasEvidence && (
                   <textarea value={form.evidenceNote} onChange={e => update('evidenceNote', e.target.value)} rows={2}
                     placeholder="Briefly describe your evidence — our team will collect it later"
-                    className="mt-3 w-full border border-amber-200 bg-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-amber-400 resize-none" />
+                    className="mt-3 w-full border border-amber-200 bg-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-amber-400 resize-none"/>
                 )}
               </div>
             </div>
@@ -264,21 +252,21 @@ export default function ReportPage() {
               {!isAnonymous && (
                 <div className="space-y-3 bg-indigo-50 rounded-xl p-5">
                   <p className="text-xs text-indigo-600 font-medium">Your info is encrypted — only trusted team will see it.</p>
-                  <input type="text"  value={form.contactName}  onChange={e => update('contactName', e.target.value)}  placeholder="Full name (optional)"              className="w-full border border-indigo-200 bg-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100" />
-                  <input type="tel"   value={form.contactPhone} onChange={e => update('contactPhone', e.target.value)} placeholder="Phone number (WhatsApp preferred)" className="w-full border border-indigo-200 bg-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100" />
-                  <input type="email" value={form.contactEmail} onChange={e => update('contactEmail', e.target.value)} placeholder="Email address (optional)"          className="w-full border border-indigo-200 bg-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100" />
+                  <input type="text"  value={form.contactName}  onChange={e => update('contactName', e.target.value)}  placeholder="Full name (optional)"              className="w-full border border-indigo-200 bg-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-400"/>
+                  <input type="tel"   value={form.contactPhone} onChange={e => update('contactPhone', e.target.value)} placeholder="Phone number (WhatsApp preferred)" className="w-full border border-indigo-200 bg-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-400"/>
+                  <input type="email" value={form.contactEmail} onChange={e => update('contactEmail', e.target.value)} placeholder="Email address (optional)"          className="w-full border border-indigo-200 bg-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-400"/>
                 </div>
               )}
               <div className="space-y-3 border-t border-gray-100 pt-5">
                 <label className="flex items-start gap-3 cursor-pointer group">
-                  <input type="checkbox" checked={form.wantsFollowUp} onChange={e => update('wantsFollowUp', e.target.checked)} className="mt-0.5 accent-pink-500" />
+                  <input type="checkbox" checked={form.wantsFollowUp} onChange={e => update('wantsFollowUp', e.target.checked)} className="mt-0.5 accent-pink-500"/>
                   <div>
                     <p className="text-sm font-medium text-gray-700 group-hover:text-pink-600 transition-colors">I would like support from the team</p>
                     <p className="text-xs text-gray-400">Legal advice and emotional support</p>
                   </div>
                 </label>
                 <label className="flex items-start gap-3 cursor-pointer group">
-                  <input type="checkbox" checked={form.consentPolice} onChange={e => update('consentPolice', e.target.checked)} className="mt-0.5 accent-pink-500" />
+                  <input type="checkbox" checked={form.consentPolice} onChange={e => update('consentPolice', e.target.checked)} className="mt-0.5 accent-pink-500"/>
                   <div>
                     <p className="text-sm font-medium text-gray-700 group-hover:text-pink-600 transition-colors">I allow referral to the police if needed</p>
                     <p className="text-xs text-gray-400">Optional — you can change this later</p>
@@ -288,7 +276,7 @@ export default function ReportPage() {
               {submitError && <div className="bg-red-50 text-red-600 text-sm px-4 py-3 rounded-xl border border-red-100">{submitError}</div>}
               <div className="bg-gray-50 rounded-xl p-4">
                 <p className="text-xs text-gray-500 leading-relaxed">
-                  <span className="font-semibold text-gray-600">Your privacy is our commitment:</span> All data is AES-256 encrypted. We do not store your IP address or device info.
+                  <span className="font-semibold text-gray-600">Your privacy is our commitment:</span> All data is encrypted. We do not store your IP address or device info.
                 </p>
               </div>
             </div>
@@ -297,17 +285,19 @@ export default function ReportPage() {
           {/* Navigation */}
           <div className="flex items-center justify-between mt-8 pt-6 border-t border-gray-100">
             {step > 1
-              ? <button onClick={() => setStep(s => s - 1)} className="text-sm text-gray-400 hover:text-gray-600 transition-colors">← Previous</button>
+              ? <button onClick={() => setStep(s => s-1)} className="text-sm text-gray-400 hover:text-gray-600 transition-colors">← Previous</button>
               : <Link href="/" className="text-sm text-gray-400 hover:text-gray-600 transition-colors">← Go back</Link>
             }
             {step < 3
-              ? <button onClick={() => setStep(s => s + 1)} disabled={step === 1 ? !canNext1 : !canNext2}
-                  className={`px-6 py-2.5 rounded-full text-sm font-semibold transition-all ${
-                    (step === 1 ? canNext1 : canNext2) ? 'bg-pink-500 hover:bg-pink-600 text-white shadow-md shadow-pink-200' : 'bg-gray-100 text-gray-300 cursor-not-allowed'
-                  }`}>Next →</button>
+              ? <button onClick={() => setStep(s => s+1)} disabled={step === 1 ? !canNext1 : !canNext2}
+                  className={`px-6 py-2.5 rounded-full text-sm font-semibold transition-all ${(step === 1 ? canNext1 : canNext2) ? 'bg-pink-500 hover:bg-pink-600 text-white shadow-md shadow-pink-200' : 'bg-gray-100 text-gray-300 cursor-not-allowed'}`}>
+                  Next →
+                </button>
               : <button onClick={handleSubmit} disabled={loading}
                   className="px-8 py-2.5 rounded-full text-sm font-semibold bg-pink-500 hover:bg-pink-600 text-white shadow-md shadow-pink-200 transition-all disabled:opacity-70 flex items-center gap-2">
-                  {loading ? (<><svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/></svg>Submitting...</>) : 'Submit Report'}
+                  {loading
+                    ? <><svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/></svg>Submitting...</>
+                    : 'Submit Report'}
                 </button>
             }
           </div>
