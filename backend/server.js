@@ -1,9 +1,16 @@
-// backend/server.js
-
-const express  = require('express');
-const mongoose = require('mongoose');
-const cors     = require('cors');
+const express      = require('express');
+const mongoose     = require('mongoose');
+const cors         = require('cors');
+const cookieParser = require('cookie-parser');
 require('dotenv').config();
+
+const authRoutes     = require('./routes/auth');
+const sosRoutes      = require('./routes/sos');
+const contactRoutes  = require('./routes/contacts');
+const incidentRoutes = require('./routes/incidents');
+const mapRoutes      = require('./routes/map');
+const reportRoutes   = require('./routes/report');
+const adminRoutes    = require('./routes/admin'); // ✅ admin route add
 
 const app = express();
 
@@ -12,22 +19,25 @@ app.use(cors({
   credentials: true,
 }));
 app.use(express.json());
+app.use(cookieParser());
 
-// ── Routes ──────────────────────────────────────────
-app.use('/api/auth',     require('./routes/auth'));
-app.use('/api/sos',      require('./routes/sos'));
-app.use('/api/contacts', require('./routes/contacts'));
-app.use('/api/report',   require('./routes/report'));
-app.use('/api/map',      require('./routes/map'));
-app.use('/api/admin',    require('./routes/admin'));   // ← নতুন
+app.use('/api/auth',      authRoutes);
+app.use('/api/sos',       sosRoutes);
+app.use('/api/contacts',  contactRoutes);
+app.use('/api/incidents', incidentRoutes);
+app.use('/api/map',       mapRoutes);
+app.use('/api/report',    reportRoutes);
+app.use('/api/admin',     adminRoutes); // ✅ admin route register
 
-app.get('/', (req, res) => res.json({ status: 'SafeHer API running ✅' }));
+app.get('/health', (req, res) => res.json({ status: 'ok' }));
 
-mongoose.connect(process.env.MONGODB_URI)
+mongoose.connect(process.env.MONGO_URI)
   .then(() => {
     console.log('✅ MongoDB connected');
-    app.listen(process.env.PORT || 5000, () =>
-      console.log(`✅ Server → http://localhost:${process.env.PORT || 5000}`)
-    );
+    const PORT = process.env.PORT || 5000;
+    app.listen(PORT, () => console.log(`✅ Backend running on port ${PORT}`));
   })
-  .catch(err => console.error('❌ MongoDB error:', err));
+  .catch(err => {
+    console.error('❌ MongoDB error:', err.message);
+    process.exit(1);
+  });
