@@ -34,10 +34,10 @@ The system is a safety response system that is designed to help women get immedi
 - MongoDB
 
 ### Authentication 
-- NextAuth.js or JWT-based custom auth
+- JWT-based custom auth
 
 ### File/Image Storage 
-- 
+- Local storage
 
 ### Deployment (Free)### 
 - Vercel (frontend)
