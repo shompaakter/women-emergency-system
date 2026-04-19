@@ -1,10 +1,3 @@
-// backend/routes/auth.js
-// POST /api/auth/send-otp       → registration OTP পাঠানো
-// POST /api/auth/register       → OTP verify + account create
-// POST /api/auth/login          → phone + password দিয়ে login
-// POST /api/auth/forgot-password → forgot password OTP
-// POST /api/auth/reset-password  → OTP দিয়ে password reset
-
 const express = require('express');
 const router  = express.Router();
 const bcrypt  = require('bcryptjs');
@@ -12,16 +5,15 @@ const jwt     = require('jsonwebtoken');
 const User    = require('../models/User');
 const { sendOTP } = require('../utils/mailer');
 
-// In-memory OTP store (production-এ Redis use করো)
-// key: phone or email → { otp, expiresAt, name, email, userId }
+// In-memory OTP store — production-এ Redis use করো
 const otpStore = new Map();
 
-const generateOTP = () => Math.floor(100000 + Math.random() * 900000).toString();
+const generateOTP = () =>
+  Math.floor(100000 + Math.random() * 900000).toString();
 
-// ═══════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════
 // POST /api/auth/send-otp
-// Registration-এর আগে OTP পাঠানো
-// ═══════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════
 router.post('/send-otp', async (req, res) => {
   try {
     const { phone, email, name } = req.body;
@@ -30,24 +22,22 @@ router.post('/send-otp', async (req, res) => {
       return res.status(400).json({ message: 'Name, email, and phone are required.' });
     }
 
-    // Check duplicate phone
     const existingPhone = await User.findOne({ phone });
     if (existingPhone) {
       return res.status(409).json({ message: 'This phone number is already registered.' });
     }
 
-    // Check duplicate email
     const existingEmail = await User.findOne({ email });
     if (existingEmail) {
       return res.status(409).json({ message: 'This email is already registered.' });
     }
 
     const otp       = generateOTP();
-    const expiresAt = Date.now() + 5 * 60 * 1000; // 5 minutes
+    const expiresAt = Date.now() + 5 * 60 * 1000;
 
     otpStore.set(phone, { otp, expiresAt, name, email });
 
-    console.log(`📧 Sending OTP to ${email} for phone ${phone} — OTP: ${otp}`);
+    console.log(`📧 OTP for ${email} (${phone}): ${otp}`);
 
     await sendOTP(email, otp, name);
 
@@ -59,10 +49,9 @@ router.post('/send-otp', async (req, res) => {
   }
 });
 
-// ═══════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════
 // POST /api/auth/register
-// OTP verify করে account create
-// ═══════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════
 router.post('/register', async (req, res) => {
   try {
     const { name, email, phone, password, otp } = req.body;
@@ -71,7 +60,6 @@ router.post('/register', async (req, res) => {
       return res.status(400).json({ message: 'All fields are required.' });
     }
 
-    // Verify OTP
     const stored = otpStore.get(phone);
     if (!stored) {
       return res.status(400).json({ message: 'OTP not found. Please request a new one.' });
@@ -97,7 +85,7 @@ router.post('/register', async (req, res) => {
     });
     await user.save();
 
-    console.log(`✅ New user registered: ${name} (${phone})`);
+    console.log(`✅ Registered: ${name} (${phone})`);
 
     res.status(201).json({ message: 'Account created successfully. Please log in.' });
 
@@ -110,9 +98,9 @@ router.post('/register', async (req, res) => {
   }
 });
 
-// ═══════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════
 // POST /api/auth/login
-// ═══════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════
 router.post('/login', async (req, res) => {
   try {
     const { phone, password } = req.body;
@@ -159,10 +147,9 @@ router.post('/login', async (req, res) => {
   }
 });
 
-// ═══════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════
 // POST /api/auth/forgot-password
-// Email দিয়ে OTP পাঠানো
-// ═══════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════
 router.post('/forgot-password', async (req, res) => {
   try {
     const { email } = req.body;
@@ -178,7 +165,7 @@ router.post('/forgot-password', async (req, res) => {
 
     otpStore.set(email, { otp, expiresAt, userId: user._id });
 
-    console.log(`📧 Forgot-password OTP for ${email} — OTP: ${otp}`);
+    console.log(`📧 Forgot-password OTP for ${email}: ${otp}`);
 
     await sendOTP(email, otp, user.name);
 
@@ -190,10 +177,9 @@ router.post('/forgot-password', async (req, res) => {
   }
 });
 
-// ═══════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════
 // POST /api/auth/reset-password
-// OTP verify করে নতুন password set
-// ═══════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════
 router.post('/reset-password', async (req, res) => {
   try {
     const { email, otp, newPassword } = req.body;

@@ -1,5 +1,3 @@
-// backend/middleware/authMiddleware.js
-
 const jwt = require('jsonwebtoken');
 
 module.exports = function (req, res, next) {
@@ -18,7 +16,7 @@ module.exports = function (req, res, next) {
       phone:  decoded.phone,
     };
     next();
-  } catch (err) {
-    return res.status(401).json({ message: 'Invalid token' });
+  } catch {
+    return res.status(401).json({ message: 'Invalid or expired token' });
   }
 };
