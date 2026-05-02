@@ -1,9 +1,21 @@
 # Changelog
 All notable changes to this project are documented in this file.
 
-Project Duration: 14 March 2026 – 20 April 2026
+Project Duration: 14 March 2026 – 1 May 2026
 
-## [2026-04-19] – Latest Updates
+## [2026-05-01] – Prepare for Deployment
+
+### Fixed
+- Modified format of files and folders to support deployment
+
+## [2026-04-29 -> 2026-04-30] – Admin modifications
+
+### Changed
+- Admin login system
+- Modified Admin dashboard to show incident reports and SOS alerts history
+- UI of incident report form
+
+## [2026-04-19] – Updates
 ### Added
 - Admin login and Dashboard
 
